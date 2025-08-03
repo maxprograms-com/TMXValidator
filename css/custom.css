@@ -18,6 +18,7 @@ body {
 	margin: 0px;
 	padding: 8px;
 	background: #2d2d2e;
+	overflow-y: hidden;
 }
 
 .panel {

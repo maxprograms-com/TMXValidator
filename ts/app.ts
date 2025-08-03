@@ -75,6 +75,9 @@ class TMXValidator {
         ipcMain.on('show-about', () => {
             this.showAbout();
         });
+        ipcMain.on('set-size', (event: IpcMainEvent, arg: { width: number, height: number }) => {
+            TMXValidator.mainWindow.setContentSize(arg.width, arg.height, true);
+        });
         ipcMain.on('validate', (event: IpcMainEvent, arg: any) => {
             TMXValidator.validate(event, arg);
         });
