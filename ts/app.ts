@@ -22,6 +22,9 @@ class TMXValidator {
     static ls: ChildProcessWithoutNullStreams;
     static killed: boolean = false;
     static currentStatus: any = {};
+    static appLang: string = 'en';
+
+    static path = require('path');
 
     constructor() {
         if (!app.requestSingleInstanceLock()) {
@@ -30,10 +33,16 @@ class TMXValidator {
             if (TMXValidator.mainWindow) {
                 // Someone tried to run a second instance, we should focus our window.
                 if (TMXValidator.mainWindow.isMinimized()) {
-                    TMXValidator.mainWindow.restore()
+                    TMXValidator.mainWindow.restore();
                 }
                 TMXValidator.mainWindow.focus();
             }
+        }
+        const defaultLocale: string = Intl.DateTimeFormat().resolvedOptions().locale;
+        if (defaultLocale.startsWith('fr')) {
+            TMXValidator.appLang = 'fr';
+        } else if (defaultLocale.startsWith('es')) {
+            TMXValidator.appLang = 'es';
         }
         if (process.platform == 'win32') {
             this.javapath = app.getAppPath() + '\\bin\\java.exe';
@@ -149,7 +158,9 @@ class TMXValidator {
                 contextIsolation: false
             }
         });
-        about.loadURL('file://' + app.getAppPath() + '/html/about.html');
+        let filePath = TMXValidator.path.join(app.getAppPath(), 'html', TMXValidator.appLang, 'about.html');
+        let fileUrl: URL = new URL('file://' + filePath);
+        about.loadURL(fileUrl.href);
         about.setMenu(null);
         about.show();
     }
@@ -169,7 +180,10 @@ class TMXValidator {
             }
         });
         TMXValidator.mainWindow.setMenu(null);
-        TMXValidator.mainWindow.loadURL('file://' + app.getAppPath() + '/html/main.html');
+
+        let filePath = TMXValidator.path.join(app.getAppPath(), 'html', TMXValidator.appLang, 'main.html');
+        let fileUrl: URL = new URL('file://' + filePath);
+        TMXValidator.mainWindow.loadURL(fileUrl.href);
     }
 
     static sendRequest(json: any, success: any, error: any): void {

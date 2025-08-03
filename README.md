@@ -20,9 +20,10 @@ This version of TMXValidator does not need to load the whole file into memory an
 
 Version | Comment | Release Date
 --------|---------|-------------
+2.8.0 | Added Spanish and French localization | August 3, 2025
 2.7.0 | Added support for huge files | March 22, 2024
 2.6.0 | Tighter checking of "x" and "i" attributes and language codes | July 4, 2023
-2.5.0 | Updated code and libraries | May 22, 2023Ø
+2.5.0 | Updated code and libraries | May 22, 2023
 2.4.0 | Updated libraries | December 8, 2022
 2.3.0 | Updated code and libraries | February 17, 2022
 2.2.0 | Updated libraries and TypeScript code | January 2, 2021

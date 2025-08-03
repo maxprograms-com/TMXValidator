@@ -17,4 +17,5 @@ package-lock.json
 /TMXValidator-darwin-x64
 /TMXValidator-win32-x64
 /TMXValidator-darwin-arm64
-.vscode/launch.json
+.vscode/
+.github/

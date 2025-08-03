@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TMXValidator</title>
+    <link rel="stylesheet" href="../../css/custom.css">
+</head>
+
+<body onload="new Main();">
+    <div class="panel">
+        <span style="width:100%;">&nbsp;</span><a id="about"><img class="right" src="../img/info.png"></a>
+    </div>
+    <div class="fill">
+        <table class="fill">
+            <tr>
+                <td><label>TMX File</label></td>
+                <td class="fill"><input id="tmxFile" type="text" class="fill"></td>
+                <td><button class="dark" id="browse">Browse...</button></td>
+            </tr>
+        </table>
+        <table class="fill">
+            <tr>
+                <td width="60%">
+                    <img id="working" src="../img/working.gif" style="display:none;" class="right"/>
+                </td>
+                <td>
+                    <button id="validate" class="primary right">Validate TMX</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script src="../../js/main.js"></script>
+</body>
+
+</html>
