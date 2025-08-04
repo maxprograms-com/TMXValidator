@@ -77,8 +77,13 @@ class TMXValidator {
         ipcMain.on('show-about', () => {
             this.showAbout();
         });
-        ipcMain.on('set-size', (event: IpcMainEvent, arg: { width: number, height: number }) => {
-            TMXValidator.mainWindow.setContentSize(arg.width, arg.height, true);
+        ipcMain.on('set-size', (event: IpcMainEvent, arg: {window: string, width: number, height: number }) => {
+            if (arg.window === 'about') {
+                TMXValidator.mainWindow.setContentSize(arg.width, arg.height, true);
+            }
+            else if (arg.window === 'main') {
+                TMXValidator.mainWindow.setContentSize(arg.width, arg.height, true);
+            }
         });
         ipcMain.on('validate', (event: IpcMainEvent, arg: any) => {
             TMXValidator.validate(event, arg);

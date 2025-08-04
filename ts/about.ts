@@ -20,6 +20,8 @@ class About {
             document.getElementById('version').innerHTML = arg.version;
             document.getElementById('build').innerHTML = arg.build;
         });
-        this.electron.send('set-size', { width: document.body.clientWidth, height: document.body.clientHeight });
+        setTimeout(() => {
+            this.electron.send('set-size', { window: 'about', width: document.body.clientWidth, height: document.body.clientHeight });
+        }, 150);
     }
 }
