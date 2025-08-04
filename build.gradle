@@ -1,0 +1,221 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+// Disable build cache for fresh builds
+if (gradle.startParameter.buildCacheEnabled) {
+    gradle.startParameter.buildCacheEnabled = false
+}
+
+// Ensure all tasks run fresh
+gradle.taskGraph.whenReady { graph ->
+    graph.allTasks.each { task ->
+        task.outputs.upToDateWhen { false }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src']
+            exclude '**/*.java'
+        }
+    }
+}
+
+application {
+    mainModule = 'tmxvalidator'
+    mainClass = 'com.maxprograms.tmxvalidation.ValidationServer'
+}
+
+repositories {
+    flatDir {
+        dirs layout.projectDirectory.dir('jars')
+    }
+}
+
+dependencies {
+    implementation name: 'bcp47j'
+    implementation name: 'json'
+    implementation name: 'xmljava'
+}
+
+compileJava {
+    options.compilerArgs += [
+        '--module-path', configurations.compileClasspath.asPath
+    ]
+}
+
+jar {
+    archiveBaseName.set('tmxvalidator')
+    destinationDirectory.set(layout.projectDirectory.dir('jars'))
+    manifest {
+        attributes(
+            'Main-Class': 'com.maxprograms.tmxvalidation.ValidationServer'
+        )
+    }
+}
+
+tasks.register('distclean', Delete) {
+    delete 'dist'
+    delete 'bin'
+    delete 'conf'
+    delete 'include'
+    delete 'legal'
+    delete 'lib'
+    delete 'release'
+}
+
+// Equivalent to build.xml compile task
+tasks.register('compile') {
+    dependsOn tasks.jar
+    description = 'Build jar file'
+    
+    doFirst {
+        // Delete existing jar like build.xml does
+        delete 'jars/tmxvalidator.jar'
+    }
+}
+
+tasks.register('jlink', Exec) {
+    dependsOn tasks.distclean, tasks.jar
+    description = 'Build Java binaries'
+    
+    doFirst {
+        def javaHome = System.getProperty('java.home')
+        def jlinkExecutable = "${javaHome}/bin/jlink"
+        def modulePath = "jars${File.pathSeparator}${javaHome}/jmods"
+        
+        if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+            jlinkExecutable = "${javaHome}\\bin\\jlink.exe"
+        }
+        
+        // Include all required modules for jlink to work properly
+        commandLine jlinkExecutable,
+            '--module-path', modulePath,
+            '--add-modules', 'tmxvalidator,javabcp47,xmljava,json,jdk.httpserver',
+            '--output', 'dist'
+    }
+    
+    doLast {
+        def jrtFile = file('dist/lib/jrt-fs.jar')
+        if (jrtFile.exists()) {
+            delete jrtFile
+        }
+        
+        // Clean build folder after successful jlink
+        delete 'build'
+    }
+}
+
+tasks.register('copyWindows') {
+    dependsOn tasks.jlink
+    description = 'Move java binaries to work folder'
+    onlyIf { System.getProperty('os.name').toLowerCase().contains('windows') }
+    
+    doLast {
+        // Windows paths with backslashes
+        copy {
+            from 'dist/bin'
+            into 'bin'
+        }
+        copy {
+            from 'dist/conf'
+            into 'conf'
+        }
+        copy {
+            from 'dist/include'
+            into 'include'
+        }
+        copy {
+            from 'dist/legal'
+            into 'legal'
+        }
+        copy {
+            from 'dist/lib'
+            into 'lib'
+        }
+        copy {
+            from 'dist/release'
+            into '.'
+        }
+        
+        delete 'dist'
+        delete 'jars/tmxvalidator.jar'
+    }
+}
+
+tasks.register('copyUnix') {
+    dependsOn tasks.jlink
+    description = 'Move java binaries to work folder'
+    onlyIf { !System.getProperty('os.name').toLowerCase().contains('windows') }
+    
+    doLast {
+        // Unix/Linux/Mac paths with forward slashes
+        copy {
+            from 'dist/bin'
+            into 'bin'
+        }
+        copy {
+            from 'dist/conf'
+            into 'conf'
+        }
+        copy {
+            from 'dist/include'
+            into 'include'
+        }
+        copy {
+            from 'dist/legal'
+            into 'legal'
+        }
+        copy {
+            from 'dist/lib'
+            into 'lib'
+        }
+        copy {
+            from 'dist/release'
+            into '.'
+        }
+        
+        delete 'dist'
+        delete 'jars/tmxvalidator.jar'
+    }
+}
+
+tasks.register('dist') {
+    dependsOn tasks.jlink, tasks.copyWindows, tasks.copyUnix
+    description = 'Prepare distribution'
+}
+
+// Set default task
+defaultTasks 'dist'
+
+// Clean task configuration
+tasks.named('clean') {
+    delete 'build'
+    delete fileTree('.gradle') {
+        include '**/*.lock'
+        include '**/*.bin'
+        include 'buildOutputCleanup/**'
+        // Match Gradle version directories (e.g., 8.14.3, 9.0, 10.1.2)
+        include '**/[0-9]*/**'
+        exclude 'vcs-*/**'  // Exclude non-version directories like vcs-1
+    }
+}
+
+// Add a cleanAll task for complete cleanup
+tasks.register('cleanAll', Delete) {
+    dependsOn tasks.clean, tasks.distclean
+    delete '.gradle'
+    delete 'jars/tmxvalidator.jar'
+}

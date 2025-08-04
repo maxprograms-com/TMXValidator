@@ -11,7 +11,7 @@
  *******************************************************************************/
 
 class About {
-    
+
     electron = require('electron');
 
     constructor() {
@@ -20,5 +20,8 @@ class About {
             document.getElementById('version').innerHTML = arg.version;
             document.getElementById('build').innerHTML = arg.build;
         });
+        setTimeout(() => {
+            this.electron.send('set-size', { window: 'about', width: document.body.clientWidth, height: document.body.clientHeight });
+        }, 150);
     }
 }

@@ -14,6 +14,7 @@ import { app, ipcMain, BrowserWindow, dialog } from "electron";
 import { ChildProcessWithoutNullStreams, execFileSync, spawn } from "child_process";
 import { ClientRequest, request } from "http";
 import { IpcMainEvent } from "electron/main";
+import { I18n } from "./i18n";
 
 class TMXValidator {
 
@@ -22,6 +23,9 @@ class TMXValidator {
     static ls: ChildProcessWithoutNullStreams;
     static killed: boolean = false;
     static currentStatus: any = {};
+    static appLang: string = 'en';
+    static i18n: I18n;
+    static path = require('path');
 
     constructor() {
         if (!app.requestSingleInstanceLock()) {
@@ -30,11 +34,18 @@ class TMXValidator {
             if (TMXValidator.mainWindow) {
                 // Someone tried to run a second instance, we should focus our window.
                 if (TMXValidator.mainWindow.isMinimized()) {
-                    TMXValidator.mainWindow.restore()
+                    TMXValidator.mainWindow.restore();
                 }
                 TMXValidator.mainWindow.focus();
             }
         }
+        const defaultLocale: string = Intl.DateTimeFormat().resolvedOptions().locale;
+        if (defaultLocale.startsWith('fr')) {
+            TMXValidator.appLang = 'fr';
+        } else if (defaultLocale.startsWith('es')) {
+            TMXValidator.appLang = 'es';
+        }
+        TMXValidator.i18n = new I18n(TMXValidator.path.join(app.getAppPath(), 'i18n', 'tmxvalidator_' + TMXValidator.appLang + '.json'));
         if (process.platform == 'win32') {
             this.javapath = app.getAppPath() + '\\bin\\java.exe';
         }
@@ -58,13 +69,21 @@ class TMXValidator {
             app.quit()
         });
         ipcMain.on('select-file', () => {
-            dialog.showErrorBox('Attention', 'Select TMX file');
+            dialog.showErrorBox(TMXValidator.i18n.getString('app', 'attention'), TMXValidator.i18n.getString('app', 'selectFile'));
         });
         ipcMain.on('select-tmx-validation', () => {
             this.selectFile();
         });
         ipcMain.on('show-about', () => {
             this.showAbout();
+        });
+        ipcMain.on('set-size', (event: IpcMainEvent, arg: {window: string, width: number, height: number }) => {
+            if (arg.window === 'about') {
+                TMXValidator.mainWindow.setContentSize(arg.width, arg.height, true);
+            }
+            else if (arg.window === 'main') {
+                TMXValidator.mainWindow.setContentSize(arg.width, arg.height, true);
+            }
         });
         ipcMain.on('validate', (event: IpcMainEvent, arg: any) => {
             TMXValidator.validate(event, arg);
@@ -75,7 +94,7 @@ class TMXValidator {
                     event.sender.send('set-version', data);
                 },
                 (reason: string) => {
-                    dialog.showErrorBox('Error', reason);
+                    dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
                 }
             );
         });
@@ -92,14 +111,15 @@ class TMXValidator {
         dialog.showOpenDialog({
             properties: ['openFile'],
             filters: [
-                { name: 'TMX File', extensions: ['tmx'] }
+                { name: TMXValidator.i18n.getString('app', 'tmxFiles'), extensions: ['tmx'] },
+                { name: TMXValidator.i18n.getString('app', 'anyFile'), extensions: ['*'] }
             ]
         }).then((value) => {
             if (!value.canceled) {
                 TMXValidator.mainWindow.webContents.send('add-tmx-validation', value.filePaths[0]);
             }
         }).catch((reason) => {
-            dialog.showErrorBox('Error', reason);
+            dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
         });
     }
 
@@ -121,14 +141,14 @@ class TMXValidator {
                     } else {
                         clearInterval(intervalObject);
                         event.sender.send('validation-completed');
-                        dialog.showErrorBox('Error', TMXValidator.currentStatus.reason);
+                        dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), TMXValidator.currentStatus.reason);
                         return;
                     }
                     TMXValidator.getStatus(data.process);
                 }, 500);
             },
             function error(reason: string) {
-                dialog.showErrorBox('Error', reason);
+                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
             }
         );
     }
@@ -149,7 +169,9 @@ class TMXValidator {
                 contextIsolation: false
             }
         });
-        about.loadURL('file://' + app.getAppPath() + '/html/about.html');
+        let filePath = TMXValidator.path.join(app.getAppPath(), 'html', TMXValidator.appLang, 'about.html');
+        let fileUrl: URL = new URL('file://' + filePath);
+        about.loadURL(fileUrl.href);
         about.setMenu(null);
         about.show();
     }
@@ -169,7 +191,10 @@ class TMXValidator {
             }
         });
         TMXValidator.mainWindow.setMenu(null);
-        TMXValidator.mainWindow.loadURL('file://' + app.getAppPath() + '/html/main.html');
+
+        let filePath = TMXValidator.path.join(app.getAppPath(), 'html', TMXValidator.appLang, 'main.html');
+        let fileUrl: URL = new URL('file://' + filePath);
+        TMXValidator.mainWindow.loadURL(fileUrl.href);
     }
 
     static sendRequest(json: any, success: any, error: any): void {
@@ -214,7 +239,7 @@ class TMXValidator {
                 TMXValidator.currentStatus = data;
             },
             (reason: string) => {
-                dialog.showErrorBox('Error', reason);
+                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
             }
         );
     }
@@ -229,7 +254,7 @@ class TMXValidator {
                 }
             },
             (reason: string) => {
-                dialog.showErrorBox('Error', reason);
+                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
             }
         );
     }

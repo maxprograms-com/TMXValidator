@@ -37,6 +37,9 @@ class Main {
             document.documentElement.style.cursor = 'default';
             document.getElementById('working').style.display = 'none';
         });
+        setTimeout(() => {
+            this.electron.send('set-size', { window: 'main', width: document.body.clientWidth, height: document.body.clientHeight });
+        }, 150);
     }
 
     browse() {
