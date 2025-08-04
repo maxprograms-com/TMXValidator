@@ -1,0 +1,9 @@
+{
+    "app": {
+        "error": "Error",
+        "attention": "Attention",
+        "selectFile": "Select TMX file",
+        "anyFile": "All Files",
+        "tmxFiles": "TMX Files"
+    }
+}

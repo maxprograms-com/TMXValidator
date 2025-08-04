@@ -14,6 +14,7 @@ import { app, ipcMain, BrowserWindow, dialog } from "electron";
 import { ChildProcessWithoutNullStreams, execFileSync, spawn } from "child_process";
 import { ClientRequest, request } from "http";
 import { IpcMainEvent } from "electron/main";
+import { I18n } from "./i18n";
 
 class TMXValidator {
 
@@ -23,7 +24,7 @@ class TMXValidator {
     static killed: boolean = false;
     static currentStatus: any = {};
     static appLang: string = 'en';
-
+    static i18n: I18n;
     static path = require('path');
 
     constructor() {
@@ -44,6 +45,7 @@ class TMXValidator {
         } else if (defaultLocale.startsWith('es')) {
             TMXValidator.appLang = 'es';
         }
+        TMXValidator.i18n = new I18n(TMXValidator.path.join(app.getAppPath(), 'i18n', 'tmxvalidator_' + TMXValidator.appLang + '.json'));
         if (process.platform == 'win32') {
             this.javapath = app.getAppPath() + '\\bin\\java.exe';
         }
@@ -67,7 +69,7 @@ class TMXValidator {
             app.quit()
         });
         ipcMain.on('select-file', () => {
-            dialog.showErrorBox('Attention', 'Select TMX file');
+            dialog.showErrorBox(TMXValidator.i18n.getString('app', 'attention'), TMXValidator.i18n.getString('app', 'selectFile'));
         });
         ipcMain.on('select-tmx-validation', () => {
             this.selectFile();
@@ -87,7 +89,7 @@ class TMXValidator {
                     event.sender.send('set-version', data);
                 },
                 (reason: string) => {
-                    dialog.showErrorBox('Error', reason);
+                    dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
                 }
             );
         });
@@ -104,14 +106,15 @@ class TMXValidator {
         dialog.showOpenDialog({
             properties: ['openFile'],
             filters: [
-                { name: 'TMX File', extensions: ['tmx'] }
+                { name: TMXValidator.i18n.getString('app', 'tmxFiles'), extensions: ['tmx'] },
+                { name: TMXValidator.i18n.getString('app', 'anyFile'), extensions: ['*'] }
             ]
         }).then((value) => {
             if (!value.canceled) {
                 TMXValidator.mainWindow.webContents.send('add-tmx-validation', value.filePaths[0]);
             }
         }).catch((reason) => {
-            dialog.showErrorBox('Error', reason);
+            dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
         });
     }
 
@@ -133,14 +136,14 @@ class TMXValidator {
                     } else {
                         clearInterval(intervalObject);
                         event.sender.send('validation-completed');
-                        dialog.showErrorBox('Error', TMXValidator.currentStatus.reason);
+                        dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), TMXValidator.currentStatus.reason);
                         return;
                     }
                     TMXValidator.getStatus(data.process);
                 }, 500);
             },
             function error(reason: string) {
-                dialog.showErrorBox('Error', reason);
+                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
             }
         );
     }
@@ -231,7 +234,7 @@ class TMXValidator {
                 TMXValidator.currentStatus = data;
             },
             (reason: string) => {
-                dialog.showErrorBox('Error', reason);
+                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
             }
         );
     }
@@ -246,7 +249,7 @@ class TMXValidator {
                 }
             },
             (reason: string) => {
-                dialog.showErrorBox('Error', reason);
+                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
             }
         );
     }
