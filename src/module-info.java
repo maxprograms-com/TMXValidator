@@ -15,7 +15,7 @@ module tmxvalidator {
 	exports com.maxprograms.tmxvalidation;
 	
 	requires transitive xmljava;
-	requires transitive javabcp47;
+	requires transitive bcp47j;
 	requires transitive jdk.httpserver;
 	requires json;
 }
