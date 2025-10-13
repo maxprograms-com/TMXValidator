@@ -299,7 +299,7 @@ public class TMXValidatingHandler implements IContentHandler {
 			if (lang.isEmpty()) {
 				throw new SAXException(Messages.getString("TMXValidatingHandler.17"));
 			}
-			if (lang.equals(srcLang)) {
+			if (lang.equalsIgnoreCase(srcLang)) {
 				found = true;
 			}
 		}
