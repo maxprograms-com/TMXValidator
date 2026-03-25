@@ -22,5 +22,9 @@
     "devDependencies": {
         "electron": "^41.0.4",
         "typescript": "^6.0.2"
+    },
+    "dependencies": {
+        "typesbcp47": "^1.18.1",
+        "typesxml": "^1.18.0"
     }
 }
