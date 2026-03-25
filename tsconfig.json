@@ -9,11 +9,11 @@
         "noImplicitThis": true,
         "sourceMap": true,
         "declaration": true,
+        "rootDir": "./ts",
         "outDir": "./js",
-        "baseUrl": ".",
         "paths": {
             "*": [
-                "node_modules/*"
+                "./node_modules/*"
             ]
         },
         "strict": true

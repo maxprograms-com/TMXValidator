@@ -21,6 +21,6 @@
     "homepage": "https://www.maxprograms.com/products/tmxvalidator.html",
     "devDependencies": {
         "electron": "^41.0.4",
-        "typescript": "^5.9.3"
+        "typescript": "^6.0.2"
     }
 }
