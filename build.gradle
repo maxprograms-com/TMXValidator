@@ -45,9 +45,9 @@ repositories {
 }
 
 dependencies {
-    implementation name: 'bcp47j'
-    implementation name: 'json'
-    implementation name: 'xmljava'
+    implementation ':bcp47j'
+    implementation ':json'
+    implementation ':xmljava'
 }
 
 compileJava {
@@ -103,7 +103,7 @@ tasks.register('jlink', Exec) {
         // Include all required modules for jlink to work properly
         commandLine jlinkExecutable,
             '--module-path', modulePath,
-            '--add-modules', 'tmxvalidator,javabcp47,xmljava,json,jdk.httpserver',
+            '--add-modules', 'tmxvalidator,bcp47j,xmljava,json,jdk.httpserver',
             '--output', 'dist'
     }
     

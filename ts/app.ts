@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2025 Maxprograms.
+ * Copyright (c) 2005-2026 Maxprograms.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 1.0
@@ -11,10 +11,10 @@
  *******************************************************************************/
 
 import { app, ipcMain, BrowserWindow, dialog } from "electron";
-import { ChildProcessWithoutNullStreams, execFileSync, spawn } from "child_process";
+import { ChildProcessWithoutNullStreams, execFileSync, spawn } from "node:child_process";
 import { ClientRequest, request } from "http";
 import { IpcMainEvent } from "electron/main";
-import { I18n } from "./i18n";
+import { I18n } from "./i18n.js";
 
 class TMXValidator {
 
@@ -223,8 +223,10 @@ class TMXValidator {
                 res.on('end', () => {
                     try {
                         success(JSON.parse(rawData));
-                    } catch (e) {
-                        error(e.message);
+                    } catch (e: unknown) {
+                        if (e instanceof Error) {
+                            error(e.message);
+                        }
                     }
                 });
             }
