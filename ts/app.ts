@@ -18,6 +18,7 @@ import { I18n } from "./i18n.js";
 class TMXValidator {
 
     static mainWindow: BrowserWindow;
+    static aboutWindow: BrowserWindow;
     static appLang: string = 'en';
     static i18n: I18n;
     static path = require('path');
@@ -59,7 +60,7 @@ class TMXValidator {
         });
         ipcMain.on('set-size', (event: IpcMainEvent, arg: {window: string, width: number, height: number }) => {
             if (arg.window === 'about') {
-                TMXValidator.mainWindow.setContentSize(arg.width, arg.height, true);
+                TMXValidator.aboutWindow.setContentSize(arg.width, arg.height, true);
             }
             else if (arg.window === 'main') {
                 TMXValidator.mainWindow.setContentSize(arg.width, arg.height, true);
@@ -110,7 +111,7 @@ class TMXValidator {
     }
 
     showAbout(): void {
-        let about = new BrowserWindow({
+        TMXValidator.aboutWindow = new BrowserWindow({
             parent: TMXValidator.mainWindow,
             width: 280,
             height: 290,
@@ -127,9 +128,9 @@ class TMXValidator {
         });
         let filePath = TMXValidator.path.join(app.getAppPath(), 'html', TMXValidator.appLang, 'about.html');
         let fileUrl: URL = new URL('file://' + filePath);
-        about.loadURL(fileUrl.href);
-        about.setMenu(null);
-        about.show();
+        TMXValidator.aboutWindow.loadURL(fileUrl.href);
+        TMXValidator.aboutWindow.setMenu(null);
+        TMXValidator.aboutWindow.show();
     }
 
     static createWindows() {
