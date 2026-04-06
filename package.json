@@ -1,7 +1,7 @@
 {
     "name": "tmxvalidator",
     "productName": "TMXValidator",
-    "version": "2.8.0",
+    "version": "3.0.0",
     "description": "TMX Validator",
     "main": "js/app.js",
     "scripts": {
@@ -20,7 +20,11 @@
     },
     "homepage": "https://www.maxprograms.com/products/tmxvalidator.html",
     "devDependencies": {
-        "electron": "^37.2.5",
-        "typescript": "^5.9.2"
+        "electron": "^41.1.1",
+        "typescript": "^6.0.2"
+    },
+    "dependencies": {
+        "typesbcp47": "^1.18.1",
+        "typesxml": "^1.18.0"
     }
 }

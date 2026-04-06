@@ -8,13 +8,16 @@
     <link rel="stylesheet" href="../../css/custom.css">
 </head>
 
-<body onload="new About();">
+<body>
     <div class="panel">
-        <h1>TMXValidator <span id="version"></span><br>Build <span id="build"></span></h1>
+        <h1>TMXValidator <span id="version"></span></h1>
         <p style="width:100%;text-align: center;"><img src="../../img/tmxvalidator.png"></p>
-        <p style="width:100%;text-align: center;">Copyright &copy; 2005-2025 Maxprograms</p>
+        <p style="width:100%;text-align: center;">Copyright &copy; 2005-2026 Maxprograms</p>
     </div>
-    <script src="../../js/about.js"></script>
+     <script>
+        const {About} = require('../../js/about.js');
+        new About();
+    </script>
 </body>
 
 </html>

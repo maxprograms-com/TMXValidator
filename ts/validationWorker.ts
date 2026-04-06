@@ -9,18 +9,16 @@
  * Contributors:
  *     Maxprograms - initial API and implementation
  *******************************************************************************/
-import {ipcRenderer, IpcRendererEvent} from 'electron';
 
-export class About {
+import { parentPort, workerData } from "node:worker_threads";
+import { I18n } from "./i18n.js";
+import { Validator } from "./validator.js";
 
-
-    constructor() {
-        ipcRenderer.send('get-version');
-        ipcRenderer.on('set-version', (event: IpcRendererEvent, version: string) => {
-            (document.getElementById('version') as HTMLSpanElement).innerHTML = version;
-        });
-        setTimeout(() => {
-            ipcRenderer.send('set-size', { window: 'about', width: document.body.clientWidth, height: document.body.clientHeight });
-        }, 150);
-    }
+const i18n: I18n = new I18n(workerData.i18nFile);
+const validator: Validator = new Validator(workerData.catalogFile, i18n);
+try {
+    validator.validateFile(workerData.file);
+    parentPort!.postMessage({ success: true });
+} catch (error) {
+    parentPort!.postMessage({ success: false, message: (error as Error).message });
 }

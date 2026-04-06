@@ -1,15 +1,22 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "target": "esnext",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
         "noImplicitAny": true,
-        "sourceMap": false,
-        "outDir": "js",
-        "baseUrl": ".",
+        "skipLibCheck": true,
+        "allowUnreachableCode": false,
+        "noImplicitThis": true,
+        "sourceMap": true,
+        "declaration": true,
+        "rootDir": "./ts",
+        "outDir": "./js",
         "paths": {
             "*": [
-                "node_modules/*"
+                "./node_modules/*"
             ]
-        }
+        },
+        "strict": true
     },
     "include": [
         "ts/**/*"

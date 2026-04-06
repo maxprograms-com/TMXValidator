@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2025 Maxprograms.
+ * Copyright (c) 2005-2026 Maxprograms.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 1.0
@@ -11,18 +11,13 @@
  *******************************************************************************/
 
 import { app, ipcMain, BrowserWindow, dialog } from "electron";
-import { ChildProcessWithoutNullStreams, execFileSync, spawn } from "child_process";
-import { ClientRequest, request } from "http";
 import { IpcMainEvent } from "electron/main";
-import { I18n } from "./i18n";
+import { Worker } from "node:worker_threads";
+import { I18n } from "./i18n.js";
 
 class TMXValidator {
 
     static mainWindow: BrowserWindow;
-    javapath: string = app.getAppPath() + '/bin/java';
-    static ls: ChildProcessWithoutNullStreams;
-    static killed: boolean = false;
-    static currentStatus: any = {};
     static appLang: string = 'en';
     static i18n: I18n;
     static path = require('path');
@@ -46,26 +41,11 @@ class TMXValidator {
             TMXValidator.appLang = 'es';
         }
         TMXValidator.i18n = new I18n(TMXValidator.path.join(app.getAppPath(), 'i18n', 'tmxvalidator_' + TMXValidator.appLang + '.json'));
-        if (process.platform == 'win32') {
-            this.javapath = app.getAppPath() + '\\bin\\java.exe';
-        }
-        TMXValidator.ls = spawn(this.javapath, ['--module-path', 'lib', '-m', 'tmxvalidator/com.maxprograms.tmxvalidation.ValidationServer'], { cwd: app.getAppPath() });
-        TMXValidator.ls.stdout.on('data', (data) => {
-            console.log(`stdout: ${data}`);
-        });
-        TMXValidator.ls.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
-        });
-        execFileSync('bin/java', ['--module-path', 'lib', '-m', 'tmxvalidator/com.maxprograms.server.CheckURL', 'http://localhost:8010/ValidationServer'], { cwd: app.getAppPath() });
         app.on('ready', () => {
             TMXValidator.createWindows();
             TMXValidator.mainWindow.show();
         });
-        app.on('quit', () => {
-            TMXValidator.stopServer();
-        });
         app.on('window-all-closed', function () {
-            TMXValidator.stopServer();
             app.quit()
         });
         ipcMain.on('select-file', () => {
@@ -86,25 +66,31 @@ class TMXValidator {
             }
         });
         ipcMain.on('validate', (event: IpcMainEvent, arg: any) => {
-            TMXValidator.validate(event, arg);
+            event.sender.send('validation-started');
+            let workerPath: string = TMXValidator.path.join(app.getAppPath(), 'js', 'validationWorker.js');
+            let worker: Worker = new Worker(workerPath, {
+                workerData: {
+                    file: arg.file,
+                    catalogFile: TMXValidator.path.join(app.getAppPath(), 'catalog', 'catalog.xml'),
+                    i18nFile: TMXValidator.path.join(app.getAppPath(), 'i18n', 'tmxvalidator_' + TMXValidator.appLang + '.json')
+                }
+            });
+            worker.on('message', (result: any) => {
+                event.sender.send('validation-completed');
+                if (result.success) {
+                    dialog.showMessageBox({ type: 'info', message: TMXValidator.i18n.getString('tmxvalidator', 'validfile') });
+                } else {
+                    dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), result.message);
+                }
+            });
+            worker.on('error', (error: Error) => {
+                event.sender.send('validation-completed');
+                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), error.message);
+            });
         });
         ipcMain.on('get-version', (event: IpcMainEvent) => {
-            TMXValidator.sendRequest({ command: 'version' },
-                (data: any) => {
-                    event.sender.send('set-version', data);
-                },
-                (reason: string) => {
-                    dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
-                }
-            );
+            event.sender.send('set-version', app.getVersion());
         });
-    }
-
-    static stopServer(): void {
-        if (!this.killed) {
-            TMXValidator.ls.kill();
-            TMXValidator.killed = true;
-        }
     }
 
     selectFile(): void {
@@ -121,36 +107,6 @@ class TMXValidator {
         }).catch((reason) => {
             dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
         });
-    }
-
-    static validate(event: IpcMainEvent, arg: any): void {
-        event.sender.send('validation-started');
-        TMXValidator.sendRequest(arg,
-            function success(data: any) {
-                TMXValidator.currentStatus = data;
-                let intervalObject = setInterval(function () {
-                    if (TMXValidator.currentStatus.status === 'Success') {
-                        // ignore status from validation request
-                    } else if (TMXValidator.currentStatus.status === 'Completed') {
-                        clearInterval(intervalObject);
-                        event.sender.send('validation-completed');
-                        TMXValidator.getValidationStatus(data.process, event);
-                        return;
-                    } else if (TMXValidator.currentStatus.status === 'Running') {
-                        // keep waiting
-                    } else {
-                        clearInterval(intervalObject);
-                        event.sender.send('validation-completed');
-                        dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), TMXValidator.currentStatus.reason);
-                        return;
-                    }
-                    TMXValidator.getStatus(data.process);
-                }, 500);
-            },
-            function error(reason: string) {
-                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
-            }
-        );
     }
 
     showAbout(): void {
@@ -195,68 +151,6 @@ class TMXValidator {
         let filePath = TMXValidator.path.join(app.getAppPath(), 'html', TMXValidator.appLang, 'main.html');
         let fileUrl: URL = new URL('file://' + filePath);
         TMXValidator.mainWindow.loadURL(fileUrl.href);
-    }
-
-    static sendRequest(json: any, success: any, error: any): void {
-        let postData: string = JSON.stringify(json);
-        let options = {
-            hostname: '127.0.0.1',
-            port: 8010,
-            path: '/ValidationServer',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(postData)
-            }
-        };
-        // Make a request
-        let req: ClientRequest = request(options);
-        req.on('response',
-            function (res: any) {
-                res.setEncoding('utf-8');
-                if (res.statusCode != 200) {
-                    error('sendRequest() error: ' + res.statusMessage);
-                }
-                let rawData: string = '';
-                res.on('data', (chunk: string) => {
-                    rawData += chunk;
-                });
-                res.on('end', () => {
-                    try {
-                        success(JSON.parse(rawData));
-                    } catch (e) {
-                        error(e.message);
-                    }
-                });
-            }
-        );
-        req.write(postData);
-        req.end();
-    }
-
-    static getStatus(processId: string): void {
-        TMXValidator.sendRequest({ command: 'status', process: processId },
-            (data: any) => {
-                TMXValidator.currentStatus = data;
-            },
-            (reason: string) => {
-                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
-            }
-        );
-    }
-
-    static getValidationStatus(processId: string, event: any): void {
-        TMXValidator.sendRequest({ command: 'validationResult', process: processId },
-            (data: any) => {
-                if (data.valid) {
-                    dialog.showMessageBox({ type: 'info', message: data.comment });
-                } else {
-                    dialog.showMessageBox({ type: 'error', message: data.reason });
-                }
-            },
-            (reason: string) => {
-                dialog.showErrorBox(TMXValidator.i18n.getString('app', 'error'), reason);
-            }
-        );
     }
 
 }
