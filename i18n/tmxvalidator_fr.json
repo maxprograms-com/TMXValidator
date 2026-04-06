@@ -5,5 +5,35 @@
         "selectFile": "Sélectionner le fichier TMX",
         "anyFile": "Tous les fichiers",
         "tmxFiles": "Fichiers TMX"
+    },
+    "versionhandler": {
+        "unexpectedroot": "Élément racine inattendu : {0}"
+    },
+    "tmxvalidator": {
+        "noversion": "Il manque l'attribut de version dans l'élément racine",
+        "invalidversion": "Version de TMX non valide : {0}",
+        "validfile": "Le fichier sélectionné est un fichier TMX valide"
+    },
+    "validatinghandler": {
+        "dtdnotresolved": "Impossible de résoudre la DTD avec publicId='{0}' systemId='{1}'",
+        "missingversion": "Il manque la version TMX",
+        "incorrectversion": "Version TMX incorrecte : {0}",
+        "notmxdoc": "Le fichier sélectionné n'est pas un fichier TMX",
+        "nosrclang": "Il manque la déclaration de la langue source",
+        "invalidsrclang": "Langue source '{0}' incorrecte",
+        "invalidxattr": "Valeur de l'attribut \"x\" incorrecte : '{0}'",
+        "duplicatexattr": "Valeur de l'attribut \"x\" en doublon : '{0}' dans '{1}'",
+        "invalidlang": "Code langue '{0}' incorrect",
+        "invalidusagecount": "Valeur de l'attribut usagecount incorrecte : '{0}'",
+        "invaliddateformat": "Format de date incorrect \"{ 0}\"",
+        "unbalancedbptept": "Nombre de balises <bpt> et <ept> différent\n\n{0}",
+        "unmatchedbptept": "Balise <bpt>/<ept> sans balise <ept>/<bpt> correspondante\n\n{0}",
+        "incorrectxmatching": "Incohérence dans les valeurs des attributs \"x\"",
+        "tuvnolang": "Il manque l'attribut de langue dans la balise <tuv>",
+        "tuvmissingsrclang": "La balise <tu> n'a pas de <tuv> en langue '{0}'",
+        "invalidibpt": "Valeur incorrecte de l'attribut 'i' dans la balise <bpt>\n\n{0}",
+        "duplicateibpt": "Valeur de l'attribut 'i' en doublon dans la balise <bpt>\n\n{0}",
+        "invalidiept": "Valeur incorrecte de l'attribut 'i' dans la balise <ept>\n\n{0}",
+        "mismatchedi": "Incohérence dans la valeur de l'attribut 'i' dans les balises <bpt>/<ept>\n\n{0}"
     }
 }

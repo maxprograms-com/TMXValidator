@@ -32,11 +32,13 @@ export class Main {
         ipcRenderer.on('validation-started', () => {
             document.documentElement.style.cursor = 'wait';
             (document.getElementById('working') as HTMLImageElement).style.display = 'block';
+            (document.getElementById('validate') as HTMLButtonElement).disabled = true;
         });
 
         ipcRenderer.on('validation-completed', () => {
             document.documentElement.style.cursor = 'default';
             (document.getElementById('working') as HTMLImageElement).style.display = 'none';
+            (document.getElementById('validate') as HTMLButtonElement).disabled = false;
         });
         setTimeout(() => {
             ipcRenderer.send('set-size', { window: 'main', width: document.body.clientWidth, height: document.body.clientHeight });

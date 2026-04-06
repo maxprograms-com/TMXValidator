@@ -5,5 +5,35 @@
         "selectFile": "Seleccione archivo TMX",
         "anyFile": "Cualquier Archivo",
         "tmxFiles": "Archivos TMX"
+    },
+    "versionhandler": {
+        "unexpectedroot": "Elemento raíz inesperado: {0}"
+    },
+    "tmxvalidator": {
+        "noversion": "Falta el atributo de versión en el elemento raíz",
+        "invalidversion": "Versión de TMX no válida: {0}",
+        "validfile": "El archivo seleccionado es TMX válido"
+    },
+    "validatinghandler": {
+        "dtdnotresolved": "No se puede resolver la DTD con publicId='{0}' systemId='{1}'",
+        "missingversion": "Falta versión de TMX",
+        "incorrectversion": "Versión incorrecta de TMX: {0}",
+        "notmxdoc": "El archivo seleccionado no es un documento TMX",
+        "nosrclang": "Idioma origen no declarado",
+        "invalidsrclang": "Idioma de origen no válido '{0}'",
+        "invalidxattr": "Valor incorrecto para el atributo \"x\": '{0}'",
+        "duplicatexattr": "Valor duplicado para el atributo \"x\": '{0}' en '{1}'",
+        "invalidlang": "Código de idioma no válido '{0}'",
+        "invalidusagecount": "Valor incorrecto para \"usagecount\": '{0}'",
+        "invaliddateformat": "Formato de fecha no válido '{0}'",
+        "unbalancedbptept": "Número desequilibrado de elementos <bpt>/<ept>\n\n{0}",
+        "unmatchedbptept": "Elemento <bpt>/<ept> sin coincidencia <ept>/<bpt>\n\n{0}",
+        "incorrectxmatching": "Correspondencia \"x\" incorrecta",
+        "tuvnolang": "<tuv> sin atributo de idioma",
+        "tuvmissingsrclang": "<tu> no tiene <tuv> con idioma establecido en '{0}'",
+        "invalidibpt": "Valor incorrecto para el atributo 'i' en un elemento <bpt>\n\n{0}",
+        "duplicateibpt": "Valor duplicado para el atributo 'i' en un elemento <bpt>\n\n{0}",
+        "invalidiept": "Valor incorrecto para el atributo 'i' en un elemento <ept>\n\n{0}",
+        "mismatchedi": "Valor no coincidente para el atributo 'i' en un elemento <bpt>/<ept>\n\n{0}"
     }
 }
