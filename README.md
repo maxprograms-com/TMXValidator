@@ -44,7 +44,7 @@ Ready to use installers are available at [https://www.maxprograms.com/products/t
 - Run `npm start` to launch TMXValidator
 
 ``` bash
-  git clone https://github.com/rmraya/TMXValidator.git
+  git clone https://github.com/maxprograms-com/TMXValidator.git
   cd TMXValidator
   npm install
   npm start
