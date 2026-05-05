@@ -12,7 +12,7 @@ TMXValidator supports TMX versions 1.1, 1.2, 1.3 and 1.4.
 
 The source code of TMXValidator was originally published on SourceForge at [https://sourceforge.net/p/tmxvalidator/code](https://sourceforge.net/p/tmxvalidator/code). The original version was written in Java and loaded the TMX file into memory for validation, limiting support for very large files.
 
-TMXValidator has since been rewritten entirely in TypeScript. It uses a SAX-based streaming parser, [TypesXML](https://maxprograms.com/products/typesxml.html), and has no file size limitation.
+TMXValidator has since been rewritten entirely in TypeScript. It uses a SAX-based streaming parser with full support for DTD validation ([TypesXML](https://maxprograms.com/products/typesxml.html)) and has no file size limitation.
 
 ## Releases
 
