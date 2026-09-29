@@ -20,7 +20,7 @@
     },
     "homepage": "https://www.maxprograms.com/products/tmxvalidator.html",
     "devDependencies": {
-        "electron": "^43.4.0",
+        "electron": "^43.5.0",
         "typescript": "^6.0.3"
     },
     "dependencies": {
